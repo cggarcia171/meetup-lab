@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>stupid fucking map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+  integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+  crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+  integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+  crossorigin="">
+  </script>
+  <style>
+  #mapid { height: 780px; }
+  </style>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous">
+</script>
+</head>
+<body>
+  <div id="mapid"></div>
+
+  <script>
+
+    var mymap = L.map('mapid').setView([37, -95], 5);
+	
+    $.ajax({//gets the api and data stuff
+      type: "GET",
+      url: "https://api.meetup.com/find/upcoming_events?zip=17601&radius=2&key=meetupKey",
+      crossDomain: true,
+      dataType: "jsonp",
+	//if getting the data was a succes
+      success: function (meetData) {
+        var loop = meetData.data.events;//is getting the events we want 
+        for(var i = 0; i < loop.length; i++){//runs through the data given by the api and loops it. 
+          var meetupData = {//puts the data from the loop in its place
+            name: loop[i].name,
+	    date: loop[i].local_date,
+            lat: loop[i].group.lat,
+            lon: loop[i].group.lon,
+          };
+          L.marker([meetupData.lat, meetupData.lon]).addTo(mymap).bindPopup(meetupData.name+" "+meetupData.date);//puts pins on map and fills the pins with the data from meetupdata
+          console.log(meetupData);
+        }
+      },
+    });
+
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox.streets',
+      accessToken: 'mapboxKey'
+    }).addTo(mymap);
+  </script>
+</body>
+</html>
